@@ -15,6 +15,7 @@ from runpod.serverless.utils import rp_cuda
 
 from faster_whisper import WhisperModel
 from faster_whisper.utils import format_timestamp
+from faster_whisper.transcribe import Segment
 
 # Define available models (for validation)
 AVAILABLE_MODELS = {
@@ -157,7 +158,7 @@ class Predictor:
             )
         )
 
-        segments = list(segments)
+        segments: list[Segment] = list(segments)
 
         # Format transcription
         transcription_output = format_segments(transcription, segments)
@@ -183,23 +184,10 @@ class Predictor:
             "model": model_name,
         }
 
-        if word_timestamps:
-            word_timestamps_list = []
-            for segment in segments:
-                for word in segment.words:
-                    word_timestamps_list.append(
-                        {
-                            "word": word.word,
-                            "start": word.start,
-                            "end": word.end,
-                        }
-                    )
-            results["word_timestamps"] = word_timestamps_list
-
         return results
 
 
-def serialize_segments(transcript):
+def serialize_segments(transcript: list[Segment]):
     """
     Serialize the segments to be returned in the API response.
     """
@@ -210,11 +198,14 @@ def serialize_segments(transcript):
             "start": segment.start,
             "end": segment.end,
             "text": segment.text,
-            "tokens": segment.tokens,
-            "temperature": segment.temperature,
-            "avg_logprob": segment.avg_logprob,
-            "compression_ratio": segment.compression_ratio,
-            "no_speech_prob": segment.no_speech_prob,
+            "words": [
+                {
+                    "word": word.word,
+                    "start": word.start,
+                    "end": word.end,
+                }
+                for word in segment.get("words", list())
+            ],
         }
         for segment in transcript
     ]
@@ -233,6 +224,8 @@ def format_segments(format_type, segments):
         return write_srt(segments)
     elif format_type == "vtt":  # Added VTT case
         return write_vtt(segments)
+    elif format_type == "none":
+        return ""
     else:  # Default or unknown format
         print(f"Warning: Unknown format '{format_type}', defaulting to plain text.")
         return " ".join([segment.text.lstrip() for segment in segments])

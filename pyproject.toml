@@ -1,0 +1,10 @@
+[project]
+name = "runpod-worker-faster-whisper"
+version = "0.1.0"
+description = "A modified version of Faster Whisper."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "faster-whisper==1.1.0",
+    "runpod~=1.7.9",
+]

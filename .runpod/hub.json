@@ -1,9 +1,9 @@
 {
-  "title": "Faster Whisper",
-  "description": "Process audio files using various Whisper models, with options for transcription formatting, language translation and more.",
+  "title": "Faster Whisper (Craig Fork)",
+  "description": "A modified version of Faster Whisper.",
   "type": "serverless",
   "category": "audio",
-  "iconUrl": "https://dummyimage.com/100x100/0066ff/fff&text=FW",
+  "iconUrl": "https://craig.chat/craig.png",
   "config": {
     "runsOn": "GPU",
     "containerDiskInGb": 20,
