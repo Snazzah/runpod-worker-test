@@ -48,7 +48,7 @@ class Predictor:
         self,
         audio,
         model_name="base",
-        transcription="plain_text",
+        transcription="none",
         translate=False,
         translation="plain_text",  # Added in a previous PR
         language=None,
