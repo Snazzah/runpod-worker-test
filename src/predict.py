@@ -204,7 +204,7 @@ def serialize_segments(transcript: list[Segment]):
                     "start": word.start,
                     "end": word.end,
                 }
-                for word in segment.get("words", list())
+                for word in (segment.words or [])
             ],
         }
         for segment in transcript
