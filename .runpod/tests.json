@@ -18,6 +18,21 @@
         "no_speech_threshold": 0.6
       },
       "timeout": 10000
+    },
+    {
+      "name": "multi_audio",
+      "input": {
+        "audios": [
+          "https://github.com/runpod-workers/sample-inputs/raw/main/audio/gettysburg.wav",
+          "https://github.com/runpod-workers/sample-inputs/raw/main/audio/NM014.mp3",
+          "https://github.com/runpod-workers/sample-inputs/raw/main/audio/Arthur.mp3",
+          "https://github.com/runpod-workers/sample-inputs/raw/main/audio/accent.mp3"
+        ],
+        "model": "turbo",
+        "word_timestamps": true,
+        "enable_vad": true
+      },
+      "timeout": 10000
     }
   ],
   "config": {

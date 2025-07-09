@@ -225,7 +225,7 @@ def format_segments(format_type, segments):
     elif format_type == "vtt":  # Added VTT case
         return write_vtt(segments)
     elif format_type == "none":
-        return ""
+        return None
     else:  # Default or unknown format
         print(f"Warning: Unknown format '{format_type}', defaulting to plain text.")
         return " ".join([segment.text.lstrip() for segment in segments])

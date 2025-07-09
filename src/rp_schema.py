@@ -22,7 +22,7 @@ INPUT_VALIDATIONS = {
     'transcription': {
         'type': str,
         'required': False,
-        'default': 'plain_text'
+        'default': 'none'
     },
     'translate': {
         'type': bool,
