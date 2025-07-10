@@ -102,11 +102,11 @@ INPUT_VALIDATIONS = {
     'enable_vad': {
         'type': bool,
         'required': False,
-        'default': False
+        'default': True
     },
     'word_timestamps': {
         'type': bool,
         'required': False,
-        'default': False
+        'default': True
     },
 }
