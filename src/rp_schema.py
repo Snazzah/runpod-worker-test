@@ -1,15 +1,5 @@
 INPUT_VALIDATIONS = {
-    'audio': {
-        'type': str,
-        'required': False,
-        'default': None
-    },
-    'audio_base64': {
-        'type': str,
-        'required': False,
-        'default': None
-    },
-    'audios': {
+    'audio_base64s': {
         'type': list,
         'required': False,
         'default': None
@@ -18,21 +8,6 @@ INPUT_VALIDATIONS = {
         'type': str,
         'required': False,
         'default': 'base'
-    },
-    'transcription': {
-        'type': str,
-        'required': False,
-        'default': 'none'
-    },
-    'translate': {
-        'type': bool,
-        'required': False,
-        'default': False
-    },
-    'translation': {
-        'type': str,
-        'required': False,
-        'default': 'plain_text'
     },
     'language': {
         'type': str,

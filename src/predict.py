@@ -48,9 +48,6 @@ class Predictor:
         self,
         audio,
         model_name="base",
-        transcription="none",
-        translate=False,
-        translation="plain_text",  # Added in a previous PR
         language=None,
         temperature=0,
         best_of=5,
@@ -160,103 +157,12 @@ class Predictor:
 
         segments: list[Segment] = list(segments)
 
-        # Format transcription
-        transcription_output = format_segments(transcription, segments)
-
-        # Handle translation if requested
-        translation_output = None
-        if translate:
-            translation_segments, _ = model.transcribe(
-                str(audio),
-                task="translate",
-                temperature=temperature,  # Reuse temperature settings for translation
-            )
-            translation_output = format_segments(
-                translation, list(translation_segments)
-            )
-
         results = {
-            "segments": serialize_segments(segments),
             "detected_language": info.language,
-            "transcription": transcription_output,
-            "translation": translation_output,
+            "transcription": " ".join([segment.text.lstrip() for segment in segments]),
             "device": "cuda" if rp_cuda.is_available() else "cpu",
             "model": model_name,
         }
 
         return results
 
-
-def serialize_segments(transcript: list[Segment]):
-    """
-    Serialize the segments to be returned in the API response.
-    """
-    return [
-        {
-            "id": segment.id,
-            "seek": segment.seek,
-            "start": segment.start,
-            "end": segment.end,
-            "text": segment.text,
-            "words": [
-                {
-                    "word": word.word,
-                    "start": word.start,
-                    "end": word.end,
-                }
-                for word in (segment.words or [])
-            ],
-        }
-        for segment in transcript
-    ]
-
-
-def format_segments(format_type, segments):
-    """
-    Format the segments to the desired format
-    """
-
-    if format_type == "plain_text":
-        return " ".join([segment.text.lstrip() for segment in segments])
-    elif format_type == "formatted_text":
-        return "\n".join([segment.text.lstrip() for segment in segments])
-    elif format_type == "srt":
-        return write_srt(segments)
-    elif format_type == "vtt":  # Added VTT case
-        return write_vtt(segments)
-    elif format_type == "none":
-        return None
-    else:  # Default or unknown format
-        print(f"Warning: Unknown format '{format_type}', defaulting to plain text.")
-        return " ".join([segment.text.lstrip() for segment in segments])
-
-
-def write_vtt(transcript):
-    """
-    Write the transcript in VTT format.
-    """
-    result = ""
-
-    for segment in transcript:
-        # Using the consistent timestamp format from previous PR
-        result += f"{format_timestamp(segment.start, always_include_hours=True)} --> {format_timestamp(segment.end, always_include_hours=True)}\n"
-        result += f"{segment.text.strip().replace('-->', '->')}\n"
-        result += "\n"
-
-    return result
-
-
-def write_srt(transcript):
-    """
-    Write the transcript in SRT format.
-    """
-    result = ""
-
-    for i, segment in enumerate(transcript, start=1):
-        result += f"{i}\n"
-        result += f"{format_timestamp(segment.start, always_include_hours=True, decimal_marker=',')} --> "
-        result += f"{format_timestamp(segment.end, always_include_hours=True, decimal_marker=',')}\n"
-        result += f"{segment.text.strip().replace('-->', '->')}\n"
-        result += "\n"
-
-    return result

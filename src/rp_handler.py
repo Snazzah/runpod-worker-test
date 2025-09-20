@@ -57,32 +57,13 @@ def run_whisper_job(job):
             return {"error": input_validation['errors']}
         job_input = input_validation['validated_input']
 
-    # Only one of audio, audio_base64, or audios allowed
-    audio_fields = [
-        bool(job_input.get('audio', False)),
-        bool(job_input.get('audio_base64', False)),
-        bool(job_input.get('audios', False))
-    ]
-    if sum(audio_fields) == 0:
-        return {'error': 'Must provide one of audio, audio_base64, or audios'}
-    if sum(audio_fields) > 1:
-        return {'error': 'Must provide only one of audio, audio_base64, or audios'}
+    if not job_input.get('audio_base64s', False):
+        return {'error': 'Must provide audio_base64s'}
 
-    audio_inputs = []
-    if job_input.get('audio', False):
-        with rp_debugger.LineTimer('download_step'):
-            audio_inputs = [download_files_from_urls(job['id'], [job_input['audio']])[0]]
-    elif job_input.get('audio_base64', False):
-        audio_inputs = [base64_to_tempfile(job_input['audio_base64'])]
-    elif job_input.get('audios', False):
-        audios = job_input['audios']
-        if not isinstance(audios, list) or len(audios) == 0:
-            return {'error': 'audios must be a non-empty list'}
-        if isinstance(audios[0], str) and audios[0].startswith('http'):
-            with rp_debugger.LineTimer('download_step'):
-                audio_inputs = download_files_from_urls(job['id'], audios)
-        else:
-            audio_inputs = [base64_to_tempfile(b64) for b64 in audios]
+    audios = job_input['audio_base64s']
+    if not isinstance(audios, list) or len(audios) == 0:
+        return {'error': 'audio_base64s must be a non-empty list'}
+    audio_inputs = [base64_to_tempfile(b64) for b64 in audios]
     logger.info(f"Number of audio inputs: {len(audio_inputs)}")
 
     results = []
@@ -91,9 +72,6 @@ def run_whisper_job(job):
             whisper_results = MODEL.predict(
                 audio=audio_input,
                 model_name=job_input["model"],
-                transcription=job_input["transcription"],
-                translation=job_input["translation"],
-                translate=job_input["translate"],
                 language=job_input["language"],
                 temperature=job_input["temperature"],
                 best_of=job_input["best_of"],
@@ -115,7 +93,7 @@ def run_whisper_job(job):
     with rp_debugger.LineTimer('cleanup_step'):
         rp_cleanup.clean(['input_objects'])
 
-    return results[0] if len(results) == 1 else results
+    return { "results": results }
 
 
 runpod.serverless.start({"handler": run_whisper_job})
